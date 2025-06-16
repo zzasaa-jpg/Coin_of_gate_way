@@ -1,0 +1,17 @@
+.env
+.vscode
+
+#Vim swap files
+*.swp
+*.swo
+*.swx
+
+# Vim backup files
+*~
+
+# Vim undo files
+*.un~
+*.bak
+
+#Dependency directories
+node_modules/
