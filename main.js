@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 
 const apiLimiter = rateLimit({
 	windowMs: process.env._32423344 * process.env._90838579 * process.env._08923456,
-	max: process.env.max_, // max requests per IP
+	max: process.env.max_,
 	message: {
 		status: 429,
 		message: "Too many requests from this IP, please try again later."
@@ -26,12 +26,66 @@ app.use(process.env.endpoint, apiLimiter)
 app.use(express.json({ limit: process.env.limit_ }));
 app.use(express.urlencoded({ extended: true, limit: process.env.limit_ }));
 
+let cache = null;
+//---------------count start value---------------
+let start_value = 0;
+app.get('/val_86556', (req, res) => {
+	try {
+		const key = req.headers['x-api-key'];
+		if (!key || key !== process.env.key_) {
+			return res.status(401).json({ message: "Invalid credentials!" });
+		}
+		start_value++;
+		res.status(200).json({ value: start_value });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Server error!", error: error });
+	}
+})
+//----------------end of start value-------------
+
+//---------------start-api_gate_way---------------
+app.get('/1_gate_way_api___', (req, res) => {
+	try {
+		const key = req.headers['x-api-key'];
+		if (!key || key !== process.env.key_) {
+			return res.status(401).json({ message: "Invalid credentials!" });
+		}
+		res.status(200).json({ message: "api_gate_way is ON!" });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Server error!", error: error });
+	}
+})
+//----------------end of api_gate_way-------------
+
+//---------------backend-engine-start---------------
+app.get('/start_engine', async (req, res) => {
+	try {
+		const key = req.headers['x-api-key'];
+		if (!key || key !== process.env.key_) {
+			return res.status(401).json({ message: "Invalid credentials!" });
+		}
+		const response = await axios.get(process.env._48424545, {
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": key
+			}
+		});
+		res.status(response.status).json(response.data);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Server error!", error: error.message })
+	}
+})
+//-----------end of backend-engine-start------------
+
 //---------------post images------------------------
 app.post(`${process.env.endpoint}/post_image__`, async (req, res) => {
 	try {
 		const key = req.headers['x-api-key'];
 		if (!key || key !== process.env.key_) {
-			return res.status(401).json({ message: "Invalid credentials!" })
+			return res.status(401).json({ message: "Invalid credentials!" });
 		}
 
 		const { coin_of, img_url, date } = req.body;
@@ -44,6 +98,7 @@ app.post(`${process.env.endpoint}/post_image__`, async (req, res) => {
 				}
 			});
 		res.status(response.status).json(response.data);
+		cache = null;
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
@@ -58,6 +113,9 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 		if (!key || key !== process.env.key_) {
 			return res.status(401).json({ message: "Invalid credentials!" })
 		}
+		if (cache) {
+			return res.status(200).json({ message: "from cache", data: cache });
+		}
 		const response = await axios.get(process.env._00014343,
 			{
 				headers: {
@@ -65,13 +123,17 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 					"x-api-key": key
 				}
 			});
+		if (response.data.data.length == 0) {
+			cache = null;
+		} else {
+			cache = response.data;
+		}
 		res.status(response.status).json(response.data);
-
 	} catch (error) {
 		console.error(error);
 		if (error.response) {
 			res.status(error.response.status).json(error.response.data)
-		} else{
+		} else {
 			res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
 		}
 	}
@@ -114,7 +176,6 @@ app.get(`${process.env.endpoint}/image_array__/:id`, async (req, res) => {
 				}
 			});
 		res.status(response.status).json(response.data);
-
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
@@ -139,8 +200,8 @@ app.put(`${process.env.endpoint}/update_document__/:id`, async (req, res) => {
 					"x-api-key": key
 				}
 			});
+		cache = null;
 		res.status(response.status).json(response.data);
-
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Error in puting document!", error: error.message });
@@ -163,15 +224,14 @@ app.delete(`${process.env.endpoint}/delete_document__`, async (req, res) => {
 				"x-api-key": key
 			}
 		});
+		cache = null;
 		res.status(response.status).json(response.data);
-
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Error in puting document!", error: error.message });
 	}
 })
 //-----------end of delete the document----------
-
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
