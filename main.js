@@ -66,10 +66,10 @@ app.get('/start_engine', async (req, res) => {
 		if (!key || key !== process.env.key_) {
 			return res.status(401).json({ message: "Invalid credentials!" });
 		}
-		res.status(200).json({___: process.env._48424545});
+		res.status(200).json({ ___: process.env._48424545 });
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({ message: "Server error!", error: error.message })
+		res.status(500).json({ message: "Server error!", error: error })
 	}
 })
 //-----------end of backend-engine-start------------
@@ -110,7 +110,7 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 
 		res.set('Cache-Control', 'no-store');
 
-		if (cache && cache.data && Array.isArray(cache.data.data)&& cache.data.data.length > 0) {
+		if (cache && cache.data && Array.isArray(cache.data.data) && cache.data.data.length > 0) {
 			return res.status(200).json({ message: "from cache", data: cache });
 		}
 		const response = await axios.get(process.env._00014343,
@@ -120,7 +120,7 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 					"x-api-key": key
 				}
 			});
-		cache = (response.data && response.data.data.length > 0)? response.data : null;
+		cache = (response.data && response.data.data.length > 0) ? response.data : null;
 		res.status(response.status).json(response.data);
 	} catch (error) {
 		console.error(error);
@@ -223,5 +223,5 @@ app.get('/:universalURL', async (req, res) => {
 //------------------------------------------------
 
 app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`)
+	console.log(`Example app listening on port ${port}`);
 })
