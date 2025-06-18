@@ -101,7 +101,7 @@ app.post(`${process.env.endpoint}/post_image__`, async (req, res) => {
 		cache = null;
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
+		res.status(500).json({ message: "Error in posting!", error: error.message });
 	}
 })
 //-------------end of post image-------------------
@@ -113,7 +113,10 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 		if (!key || key !== process.env.key_) {
 			return res.status(401).json({ message: "Invalid credentials!" })
 		}
-		if (cache) {
+
+		res.set('Cache-Control', 'no-store');
+
+		if (cache && cache.data && Array.isArray(cache.data.data)&& cache.data.data.length > 0) {
 			return res.status(200).json({ message: "from cache", data: cache });
 		}
 		const response = await axios.get(process.env._00014343,
@@ -123,42 +126,14 @@ app.get(`${process.env.endpoint}/get_all_documents_`, async (req, res) => {
 					"x-api-key": key
 				}
 			});
-		if (response.data.data.length == 0) {
-			cache = null;
-		} else {
-			cache = response.data;
-		}
+		cache = (response.data && response.data.data.length > 0)? response.data : null;
 		res.status(response.status).json(response.data);
 	} catch (error) {
 		console.error(error);
-		if (error.response) {
-			res.status(error.response.status).json(error.response.data)
-		} else {
-			res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
-		}
+		res.status(500).json({ message: "Error in getting images!", error: error.message });
 	}
 })
 //------------end of get all documents------------
-
-//----------------not found route-----------------
-app.get('/:universalURL', async (req, res) => {
-	try {
-		const { universalURL } = req.params;
-		const response = await axios.get(`${process.env._03445654}${universalURL}`,
-			{
-				headers: { "Content-Type": "application/json" }
-			});
-		res.status(response.status).json(response.data);
-	} catch (error) {
-		console.error(error);
-		if (error.response) {
-			res.status(error.response.status).json(error.response.data)
-		} else {
-			res.status(500).json({ message: "Internal error calling backend!", error: error.message });
-		}
-	}
-})
-//------------------------------------------------
 
 //----------------get image array-----------------
 app.get(`${process.env.endpoint}/image_array__/:id`, async (req, res) => {
@@ -178,7 +153,7 @@ app.get(`${process.env.endpoint}/image_array__/:id`, async (req, res) => {
 		res.status(response.status).json(response.data);
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({ message: "Error posting from localhost: 2000", error: error.message });
+		res.status(500).json({ message: "Error in getting image_document!", error: error.message });
 	}
 })
 //--------------end of get image array------------
@@ -228,10 +203,30 @@ app.delete(`${process.env.endpoint}/delete_document__`, async (req, res) => {
 		res.status(response.status).json(response.data);
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({ message: "Error in puting document!", error: error.message });
+		res.status(500).json({ message: "Error in deleting document!", error: error.message });
 	}
 })
 //-----------end of delete the document----------
+
+//----------------not found route-----------------
+app.get('/:universalURL', async (req, res) => {
+	try {
+		const { universalURL } = req.params;
+		const response = await axios.get(`${process.env._03445654}${universalURL}`,
+			{
+				headers: { "Content-Type": "application/json" }
+			});
+		res.status(response.status).json(response.data);
+	} catch (error) {
+		console.error(error);
+		if (error.response) {
+			res.status(error.response.status).json(error.response.data)
+		} else {
+			res.status(500).json({ message: "Internal error calling backend!", error: error.message });
+		}
+	}
+})
+//------------------------------------------------
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
