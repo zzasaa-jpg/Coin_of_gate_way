@@ -66,13 +66,7 @@ app.get('/start_engine', async (req, res) => {
 		if (!key || key !== process.env.key_) {
 			return res.status(401).json({ message: "Invalid credentials!" });
 		}
-		const response = await axios.get(process.env._48424545, {
-			headers: {
-				"Content-Type": "application/json",
-				"x-api-key": key
-			}
-		});
-		res.status(response.status).json(response.data);
+		res.status(200).json({___: process.env._48424545});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Server error!", error: error.message })
