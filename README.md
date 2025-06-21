@@ -21,8 +21,8 @@ This is the gateway service for **CoinOf**, acting as the bridge between the fro
 
 All routes require:
 
-https Headers:
-x-api-key: _API_KEY
+>https Headers:
+>x-api-key: _API_KEY
 
 ---
 ---
